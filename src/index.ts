@@ -11,13 +11,15 @@ const main = async () => {
     password: "postgresql",
   });
 
-  const post = orm.em.create(Post, {
+  const fork = orm.em.fork();
+
+  const post = fork.create(Post, {
     title: "my first post",
     createdAt: new Date(),
     updatedAt: new Date(),
   });
 
-  console.log(post)
+  console.log(post);
 };
 
 main();
