@@ -6,8 +6,13 @@
   "scripts": {
     "watch": "tsc -w",
     "dev": "nodemon dist/index.js",
+    "migrate:create": "npx mikro-orm migration:create",
+    "migrate:up": "npx mikro-orm migration:up",
+    "migrate:down": "npx mikro-orm migration:down",
+    "migrate:fresh": "npx mikro-orm migration:fresh",
     "start": "node dist/index.js",
-    "start2": "ts-node src/index.ts"
+    "start2": "ts-node src/index.ts",
+    "dev2": "ndemon --exec ts-node src/index.ts"
   },
   "keywords": [],
   "author": "",
@@ -23,6 +28,7 @@
     "@mikro-orm/core": "^5.3.1",
     "@mikro-orm/migrations": "^5.3.1",
     "@mikro-orm/postgresql": "^5.3.1",
+    "dotenv": "^16.0.1",
     "pg": "^8.7.3",
     "postgresql": "^0.0.1"
   },
