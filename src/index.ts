@@ -1,15 +1,10 @@
 import { MikroORM } from "@mikro-orm/core";
 import { _prod_ } from "./constants";
 import { Post } from "./entities/Post";
+import microConfig from "./mikro-orm.config";
 
 const main = async () => {
-  const orm = await MikroORM.init({
-    entities: [Post],
-    dbName: "lireddit",
-    debug: !_prod_,
-    type: "postgresql",
-    password: "postgresql",
-  });
+  const orm = await MikroORM.init(microConfig);
 
   const fork = orm.em.fork();
 
@@ -18,6 +13,7 @@ const main = async () => {
     createdAt: new Date(),
     updatedAt: new Date(),
   });
+  await orm.em.persistAndFlush(post);
 
   console.log(post);
 };
