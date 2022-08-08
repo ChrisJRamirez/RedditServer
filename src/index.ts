@@ -1,21 +1,30 @@
 import { MikroORM } from "@mikro-orm/core";
 import { _prod_ } from "./constants";
-import { Post } from "./entities/Post";
+// import { Post } from "./entities/Post";
 import microConfig from "./mikro-orm.config";
+import express from "express"
 
 const main = async () => {
   const orm = await MikroORM.init(microConfig);
-  const fork = orm.em.fork();
+  await orm.getMigrator().up();
+  // const fork = orm.em.fork();
 
-  const post = fork.create(Post, {
-    title: "my first pet",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  });
+  const app = express();
+  
+  app.listen(4000, () => {
+    console.log("server started on localhost:4000")
+  })
 
-  await fork.persistAndFlush(post);
+  // const post = fork.create(Post, {
+  //   title: "my first pet",
+  //   createdAt: new Date(),
+  //   updatedAt: new Date(),
+  // });
 
-  // console.log(post);
+  // const posts = await fork.find(Post, {});
+  // console.log(posts)
+
+  
 };
 
 main();
