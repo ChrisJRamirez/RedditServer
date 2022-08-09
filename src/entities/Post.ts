@@ -1,9 +1,11 @@
-import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
+import { Entity, OptionalProps, PrimaryKey, Property } from "@mikro-orm/core";
 import { Field, Int, ObjectType } from "type-graphql";
 
 @ObjectType()
 @Entity()
 export class Post {
+  // from youtube comment in order to fix error "Argument of type '{ title: string; }' is not assignable to parameter of type 'RequiredEntityData<Post>" 
+  [OptionalProps]?:"updatedAt"| "createdAt";
   @Field(() => Int)
   @PrimaryKey()
   id!: number;

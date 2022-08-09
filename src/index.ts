@@ -7,7 +7,7 @@ import express from "express";
 import {ApolloServer} from "apollo-server-express";
 import {buildSchema} from "type-graphql"
 import { HelloResolver } from "./resolvers/hello";
-import { PostResolver } from "./resolvers/post";
+import { PostResolver } from "./resolvers/posts";
 
 const main = async () => {
   const orm = await MikroORM.init(microConfig);
