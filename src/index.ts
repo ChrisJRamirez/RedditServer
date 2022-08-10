@@ -12,6 +12,7 @@ import { UsersResolver } from "./resolvers/users";
 import connectRedis from "connect-redis";
 import * as redis from "redis"; // * as to fix error "Cannot read property 'createClient' of undefined"
 import session from "express-session";
+import { MyContext } from "./types";
 
 const main = async () => {
   const orm = await MikroORM.init(microConfig);
@@ -21,7 +22,10 @@ const main = async () => {
   const app = express();
 
   const RedisStore = connectRedis(session);
-  const redisClient = redis.createClient();
+  const redisClient = redis.createClient({
+    legacyMode: true,
+  });
+  await redisClient.connect();
 
   app.use(
     session({
@@ -31,13 +35,15 @@ const main = async () => {
         disableTouch: true, // keeps redis session forever in order to make fwer requests
       }),
       cookie: {
-        maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
+        maxAge: 100000000000000, // 10 years
         httpOnly: true,
         sameSite: "lax", // protecting crsf
         secure: _prod_, // cookie only works in https if true
+        
       },
       secret: "adsfghjffjjhfjf", // make this an environment variable
-      resave: false,
+      resave: true,// was false, fliped to true cuz of error "express-session deprecated undefined saveUninitialized option; provide saveUninitialized option dist/index.js:57:43"
+      saveUninitialized: true,
     })
   );
 
@@ -46,7 +52,7 @@ const main = async () => {
       resolvers: [HelloResolver, PostResolver, UsersResolver],
       validate: false,
     }),
-    context: ({ req, res}) => ({ em: orm.em.fork(), req, res }),
+    context: ({ req, res}) : MyContext => ({ em: orm.em.fork(), req, res }),
   });
   // You must `await server.start()` before calling `server.applyMiddleware()` *** had to add in line below **
   await apolloServer.start();
