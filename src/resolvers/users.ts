@@ -73,9 +73,24 @@ export class UsersResolver {
       username: options.username,
       password: hashedPassword,
     });
-    await em.persistAndFlush(users);
+    try {
+      await em.persistAndFlush(users);
+    } catch (err) {
+      // duplicate username error
+      if (err.code === "23505") {
+        // || err.detail.includes("already exists")=> goes in parentheses
+        return {
+          errors: [
+            {
+              field: "username",
+              message: "username already taken", // should just say invalid login}
+            },
+          ],
+        };
+      }
+    }
     //need to return users in an object because we have a response object ****
-    return {users};
+    return { users };
   }
 
   // LOGIN
