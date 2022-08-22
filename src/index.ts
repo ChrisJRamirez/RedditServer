@@ -35,7 +35,7 @@ const main = async () => {
         disableTouch: true, // keeps redis session forever in order to make fwer requests
       }),
       cookie: {
-        maxAge: 100000000000000, // 10 years
+        maxAge: 100000000000000000000000000000000, // 10 years
         httpOnly: true,
         sameSite: "lax", // protecting crsf
         secure: _prod_, // cookie only works in https if true
