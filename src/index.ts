@@ -43,7 +43,7 @@ const main = async () => {
       },
       secret: "adsfghjffjjhfjf", // make this an environment variable
       resave: true,// was false, fliped to true cuz of error "express-session deprecated undefined saveUninitialized option; provide saveUninitialized option dist/index.js:57:43"
-      saveUninitialized: true,
+      saveUninitialized: true, // on true it is storing empty sessions
     })
   );
 
