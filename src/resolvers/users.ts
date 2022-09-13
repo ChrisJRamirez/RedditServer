@@ -11,6 +11,7 @@ import {
   Resolver,
 } from "type-graphql";
 import argon2 from "argon2";
+import { EntityManager } from "@mikro-orm/postgresql";
 
 // another way of creating input fields
 @InputType()
@@ -81,16 +82,26 @@ export class UsersResolver {
     }
 
     const hashedPassword = await argon2.hash(options.password);
-    const users = em.create(Users, {
-      username: options.username,
-      password: hashedPassword,
-    });
+    let users;
     try {
-      await em.persistAndFlush(users);
+      const result = await (em as EntityManager)
+        .createQueryBuilder(Users)
+        .getKnexQuery()
+        .insert({
+          username: options.username,
+          password: hashedPassword,
+          created_at: new Date(),
+          updated_at: new Date(),
+        })
+        // * = returning all the fields
+        .returning("*");
+        users = result[0]
       // added in - : any to resolve unknown type error
     } catch (err: any) {
+      console.log(err)
       // duplicate username error
-      if (err.detail.includes("already exists")) {
+      // if (err.detail.includes("already exists"))
+      if (err.code === "23505") {
         // || err.detail.includes("already exists")=> goes in parentheses
         return {
           errors: [
