@@ -13,7 +13,8 @@ import connectRedis from "connect-redis";
 import * as redis from "redis"; // * as to fix error "Cannot read property 'createClient' of undefined"
 import session from "express-session";
 import { MyContext } from "./types";
-import cors from "cors"
+import cors from "cors";
+import { InMemoryLRUCache } from "@apollo/utils.keyvaluecache";
 
 const main = async () => {
   const orm = await MikroORM.init(microConfig);
@@ -27,10 +28,13 @@ const main = async () => {
     legacyMode: true,
   });
   await redisClient.connect();
-  app.use(cors({
-    origin: "http://localhost:3000",
-    credentials: true,
-  }))
+
+  app.use(
+    cors({
+      origin: ["http://localhost:3000", "https://studio.apollographql.com"],
+      credentials: true,
+    })
+  );
 
   app.use(
     session({
@@ -47,7 +51,7 @@ const main = async () => {
       },
       secret: "adsfghjffjjhfjf", // make this an environment variable
       resave: true, // was false, fliped to true cuz of error "express-session deprecated undefined saveUninitialized option; provide saveUninitialized option dist/index.js:57:43"
-      saveUninitialized: true, // on true it is storing empty sessions
+      saveUninitialized: false, // on true it is storing empty sessions
     })
   );
 
@@ -57,6 +61,9 @@ const main = async () => {
       validate: false,
     }),
     context: ({ req, res }): MyContext => ({ em: orm.em.fork(), req, res }),
+    cache: new InMemoryLRUCache({
+      maxSize: Math.pow(5, 20) * 100,
+    }),
   });
   // You must `await server.start()` before calling `server.applyMiddleware()` *** had to add in line below **
   await apolloServer.start();
@@ -65,6 +72,10 @@ const main = async () => {
   apolloServer.applyMiddleware({
     app,
     cors: false,
+    //   {
+    //     origin: "http://localhost:3000",
+    //     credentials: true,
+    // }
   });
 
   app.listen(4000, () => {
